@@ -9,9 +9,9 @@ Query::Query(const char* query) {
 
 Query::Query(httpd_req_t* request) {
     this->empty = true;
-    size_t query_len = httpd_req_get_url_query_len(request);
+    size_t query_len = httpd_req_get_url_query_len(request) + 1;
     if (query_len > 1) {
-        char* query_buffer = (char*)calloc(sizeof(char), query_len + 1);
+        char* query_buffer = (char*)calloc(sizeof(char), query_len);
         if (httpd_req_get_url_query_str(request, query_buffer, query_len) == ESP_OK) {
             this->query = std::string(query_buffer);
             this->empty = false;
