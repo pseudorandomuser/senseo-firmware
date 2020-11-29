@@ -1,0 +1,8 @@
+.vscode
+.DS_Store
+._*
+
+build/
+cmake-build-debug/
+sdkconfig
+sdkconfig.old
