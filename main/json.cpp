@@ -1,11 +1,6 @@
 #include "json.hpp"
 
-#include "esp_log.h"
-
 #include <cstring>
-#include <algorithm>
-
-#define LOG_TAG "json.cpp"
 
 JSON::JSON() {
     this->empty = true;

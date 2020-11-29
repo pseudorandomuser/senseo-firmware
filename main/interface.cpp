@@ -19,7 +19,7 @@ esp_err_t command_handler(httpd_req_t* request) {
     if (command.empty()) {
         std::string response = JSON::simple_response(false, "Missing 'type' parameter!");
         httpd_resp_send(request, response.c_str(), response.length());
-    } 
+    }
     
     else {
 
@@ -30,13 +30,17 @@ esp_err_t command_handler(httpd_req_t* request) {
             if (ssid.empty()) {
                 response = JSON()
                     .add_bool("success", false)
-                    .add_string("message", "Unable to read SSID from config!")
+                    .add_string("message", "Unable to read network from config!")
                     .finalize();
             } else {
                 response = JSON()
                     .add_bool("success", true)
-                    .add_string("message", "Successfully read SSID from config,")
-                    .add_string("ssid", ssid)
+                    .add_string("message", "Successfully read network from config,")
+                    .add_json("network", JSON()
+                        .add_string("ssid", ssid)
+                        .add_string("psk", config.get_psk())
+                        .add_int("security", config.get_security())
+                    )
                     .finalize();
             }
             httpd_resp_send(request, response.c_str(), response.length());
@@ -46,6 +50,7 @@ esp_err_t command_handler(httpd_req_t* request) {
             std::string response = JSON::simple_response(
                 true, "Going down in " + std::to_string(RESET_DELAY_SECS) + "seconds..."
             );
+            httpd_resp_send(request, response.c_str(), response.length());
             vTaskDelay((RESET_DELAY_SECS * 1000) / portTICK_PERIOD_MS);
             esp_restart();
         } 
@@ -92,13 +97,13 @@ esp_err_t netconfig_handler(httpd_req_t* request) {
     if (result <= 0) {
         if (result == HTTPD_SOCK_ERR_TIMEOUT) {
             httpd_resp_send_408(request);
-        }
-        free(buffer);
+        } free(buffer);
         return ESP_FAIL;
     }
 
     Query query(buffer);
     free(buffer);
+
     std::string ssid = query.get("ssid");
     std::string psk = query.get("psk");
 
@@ -112,8 +117,8 @@ esp_err_t netconfig_handler(httpd_req_t* request) {
     bool success = config.set_network(ssid, psk, WIFI_AUTH_WPA2_PSK);
     std::string response = JSON::simple_response(
         success, success ? "Successfully set network to '" +
-        ssid + "! Going down in " + std::to_string(RESET_DELAY_SECS) + " seconds..." :
-        "Failed to set network."
+        ssid + "! Going down in " + std::to_string(RESET_DELAY_SECS) + 
+        " seconds..." : "Failed to set network."
     );
     httpd_resp_send(request, response.c_str(), response.length());
     if (success) {
@@ -125,13 +130,6 @@ esp_err_t netconfig_handler(httpd_req_t* request) {
 
 }
 
-httpd_uri_t command_uri {
-    .uri = "/command",
-    .method = HTTP_GET,
-    .handler = command_handler,
-    .user_ctx = NULL
-};
-
 httpd_uri_t root_uri {
     .uri = "/",
     .method = HTTP_GET,
@@ -139,7 +137,14 @@ httpd_uri_t root_uri {
     .user_ctx = NULL
 };
 
-httpd_uri_t set_netconfig_uri {
+httpd_uri_t command_uri {
+    .uri = "/command",
+    .method = HTTP_GET,
+    .handler = command_handler,
+    .user_ctx = NULL
+};
+
+httpd_uri_t netconfig_uri {
     .uri = "/netconfig",
     .method = HTTP_POST,
     .handler = netconfig_handler,
@@ -149,9 +154,9 @@ httpd_uri_t set_netconfig_uri {
 bool Interface::start_server() {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     if (httpd_start(&this->server, &config) == ESP_OK) {
-        httpd_register_uri_handler(this->server, &command_uri);
         httpd_register_uri_handler(this->server, &root_uri);
-        httpd_register_uri_handler(this->server, &set_netconfig_uri);
+        httpd_register_uri_handler(this->server, &command_uri);
+        httpd_register_uri_handler(this->server, &netconfig_uri);
         return true;
     }
     return false;
