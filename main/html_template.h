@@ -1,8 +1,7 @@
-
 #define HTML_TEMPLATE_NETCONFIG "<html>" \
     "<head><title>ESP32 Network Configuration</title></head><body>" \
     "<h1>ESP32 Network Configuration</h1><br>" \
-    "<form action=\"/netcfg\" method=\"post\">" \
+    "<form action=\"/netconfig\" method=\"post\">" \
     "<label for=\"ssid\">SSID</label><br>" \
     "<input type=\"text\" id=\"ssid\" name=\"ssid\"><br>" \
     "<label for=\"psk\">Password (WPA2 PSK)</label><br>" \

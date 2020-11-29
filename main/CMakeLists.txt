@@ -5,8 +5,10 @@ idf_component_register(
     "config.cpp"
     "interface.cpp"
     "io.cpp"
+    "json.cpp"
     "netconfig.cpp"
     "nvstorage.cpp"
+    "query.cpp"
 
     INCLUDE_DIRS ""
 

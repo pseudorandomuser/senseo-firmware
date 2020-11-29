@@ -1,4 +1,5 @@
 #include "netconfig.hpp"
+#include "nvstorage.hpp"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -9,9 +10,7 @@
 #include "esp_wifi.h"
 #include "esp_log.h"
 
-#include <string.h>
-
-#include "nvstorage.hpp"
+#include <cstring>
 
 #define LOG_TAG "netconfig.cpp"
 
@@ -44,7 +43,7 @@ static void sta_event_handler(void* arg, esp_event_base_t event_base, int32_t ev
     }
     
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (retry_count < NETCONFIG_RECONNECT_ATTEMPTS) {
+        if (NETCONFIG_RECONNECT_ATTEMPTS < 0 || retry_count < NETCONFIG_RECONNECT_ATTEMPTS) {
             ESP_LOGW(LOG_TAG, "Connection to access point lost, attempting reconnect...");
             esp_wifi_connect();
             retry_count++;
@@ -193,9 +192,6 @@ bool NetConfig::connect_station(std::string ssid, std::string psk, wifi_auth_mod
         ESP_LOGI(LOG_TAG, "Connected to SSID '%s'.", ssid.c_str());
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(LOG_TAG, "Failed to connect to SSID '%s'.", ssid.c_str());
-        NVStorage::deinit();
-        NVStorage::erase();
-        esp_restart();
     } else {
         ESP_LOGE(LOG_TAG, "Got an unexpected event bit!");
     }

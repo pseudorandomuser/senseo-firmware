@@ -6,7 +6,7 @@
 #include <string>
 
 #define NETCONFIG_AP_SSID               "ESP32-AP"
-#define NETCONFIG_RECONNECT_ATTEMPTS    20
+#define NETCONFIG_RECONNECT_ATTEMPTS    -1
 
 #define WIFI_CONNECTED_BIT  BIT0
 #define WIFI_FAIL_BIT       BIT1
