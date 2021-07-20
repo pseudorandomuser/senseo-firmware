@@ -41,7 +41,7 @@ std::string Query::decode(std::string value) {
             int current;
             sscanf(value.substr(i + 1, 2).c_str(), "%x", &current);
             result += (char)current;
-            i = i + 2;
+            i += 2;
         } else if (value[i] == '+') {
             result += ' ';
         } else {

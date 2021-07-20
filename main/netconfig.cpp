@@ -108,7 +108,7 @@ bool NetConfig::publish_ap() {
     wireless_cfg.ap.beacon_interval = 100;
 
     ESP_LOGD(LOG_TAG, "Setting wireless configuration...");
-    if (esp_wifi_set_config(ESP_IF_WIFI_AP, &wireless_cfg) != ESP_OK) {
+    if (esp_wifi_set_config(WIFI_IF_AP, &wireless_cfg) != ESP_OK) {
         ESP_LOGE(LOG_TAG, "Could not set wireless configuration!");
         return false;
     }
@@ -173,7 +173,7 @@ bool NetConfig::connect_station(std::string ssid, std::string psk, wifi_auth_mod
     }
     
     ESP_LOGD(LOG_TAG, "Setting wireless configuration...");
-    if (esp_wifi_set_config(ESP_IF_WIFI_STA, &wireless_cfg) != ESP_OK) {
+    if (esp_wifi_set_config(WIFI_IF_STA, &wireless_cfg) != ESP_OK) {
         ESP_LOGE(LOG_TAG, "Could not set wireless configuration!");
         return false;
     }
